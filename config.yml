@@ -1,0 +1,70 @@
+# Training configurations
+training:
+  use_cuda: true
+  dataset: coco
+  data_dir: 'D:/Self_Practicing/Computer Vision/research/Experiments/src/data/preprocessed/'                # Path to preprocessed NEON dataset (absolute path to data/preprocessed/)
+  model: 'hcf_rcnn'                                                                                      # 'faster_rcnn' for Faster R-CNN or 'hcf_rcnn' for HAF R-CNN or 'yolov12' for YOLOv12
+  num_classes: 2
+  ckpt_path: './experiments/checkpoints/faster_rcnn.pth'                                                    # Not used
+  results: './experiments/fasterrcnn_results.pth'                                                           # Not used
+  max_workers: 4
+  verbose: true
+  batch_size: 1                                                                                             # Batch size
+  seed: 42
+  lr: 0.0001                                                                                                # Learning rate
+  momentum: 0.9
+  weight_decay: 0.0005                                                          
+  epochs: 100                                                                                               # Number of training epochs
+  lr_steps: [15, 25]
+  lr_drop: 10
+  iters: -1
+  print_freq: 100
+  log_dir: './experiments/logs'                                                                             # Path to log directory during training
+  optimizer: 'sgd'                                                                                          # Optimizer algorithm, can be 'sgd' or 'adam'
+  lr_scheduler: 'cosine'                                                                                    # Learning rate schedule, can be 'step' or 'cosine' or 'onecycle'
+  grad_clip: 0.1
+  warmup_iters: 500
+  anchor_sizes: [32, 64, 128, 256, 512]                                                                     # Anchor box sizes, used for HAF R-CNN model
+  # anchor_sizes: [16, 32, 64, 128, 256]
+  loss_weights:
+    rpn_objectness: 1.0
+    rpn_box: 1.0
+    roi_classifier: 1.0
+    roi_box: 1.0
+    l1: 1.0
+    ciou: 0.0
+    classifier_loss_type: 'cross_entropy'  # or 'focal'
+    focal_alpha: 0.25
+    focal_gamma: 2.0
+    ce_weight: 0.5
+    focal_weight: 0.5 
+  frcnn_input: 'rgb' # or 'chm' or 'both'                                                                   # Input image options for Faster R-CNN and Yolov12 model
+
+# Customize configuration for model evaluation on test set
+test:
+  use_cuda: True
+  data_dir: 'D:/Self_Practicing/Computer Vision/research/Experiments/src/data/preprocessed/'                # Change to the directory containing preprocessed data (path to data/preprocessed/)
+  model: 'hcf_rcnn'                                                                                         # 'faster_rcnn' corresponds to Faster R-CNN architecture or 'hcf_rcnn' corresponds to HAF R-CNN architecture or 'deepforest_retinanet' corresponds to RetinaNet architecture of DeepForest package, 'yolov12' corresponds to YOLOv12 architecture
+  max_workers: 2
+  batch_size: 1
+  verbose: true
+  # ckpt_path: '/media02/lqngoc22/thesis-tree-delineation/experiments/checkpoints/test2/hcf_rcnn_best.pth'
+  ckpt_path: 'D:/Self_Practicing/Computer Vision/research/Experiments/src/experiments/checkpoints/hcf-test2/hcf_rcnn_best.pth'
+  # ckpt_path: 'D:/Self_Practicing/Computer Vision/research/Experiments/src/experiments/checkpoints/hcf-test45/hcf_rcnn_best.pth'           # Path to the trained checkpoint
+  # ckpt_path: 'D:/Self_Practicing/Computer Vision/research/Experiments/src/experiments/checkpoints/hcf-no-cawf/hcf_rcnn_best.pth'
+  # ckpt_path: 'D:/Self_Practicing/Computer Vision/research/Experiments/src/experiments/checkpoints/faster_rcnn_chm/faster_rcnn_best.pth'
+  # ckpt_path: 'D:/Self_Practicing/Computer Vision/research/Experiments/src/experiments/checkpoints/faster_rcnn_chm/faster_rcnn_best.pth'
+  frcnn_input: 'rgb' # or 'chm'                                                                                                         # Input image options for Faster R-CNN and Yolov12 models
+  anchor_sizes: [32, 64, 128, 256, 512]                                                                     # Anchor box sizes, used for HAF R-CNN model
+
+# Customize configuration for model evaluation on large images
+inference:
+  site: DELA                                                                                                                                                                # Site name in the NEON dataset, e.g., DELA, HARV, MLBS, ...
+  rgb_tile_path: 'D:/Self_Practicing/Computer Vision/research/Experiments/datasets/NeonTree/training/RGB/2019_DELA_5_423000_3601000_image_crop.tif'                         # Path to the large RGB image
+  chm_tile_path: 'D:/Self_Practicing/Computer Vision/research/Experiments/datasets/NeonTree/training/CHM/2019_DELA_5_423000_3601000_image_crop_CHM.tif'                     # Path to the large CHM image
+  hsi_tile_path: 'D:/Self_Practicing/Computer Vision/research/Experiments/datasets/NeonTree/training/Hyperspectral/2019_DELA_5_423000_3601000_image_crop_hyperspectral.tif' # Path to the large HSI image
+  rf_model_path: 'D:/Self_Practicing/Computer Vision/research/Experiments/IDTreeS_Project/notebooks/carbon_stock_rf_model.pkl'                                              # Path to the trained Random Forest model
+  ckpt_path: 'D:/Self_Practicing/Computer Vision/research/Experiments/src/experiments/checkpoints/hcf-test2/hcf_rcnn_best.pth'                                              # Path to the trained checkpoint
+  detection_path: './inferences/carbon_stock_detection_DELA'                                                                                                                # Path to save the tree detection results on the large image
+  distribution_path: './inferences/carbon_stock_distribution_DELA'                                                                                                          # Path to save the carbon distribution results of individual trees
+  aop_bands_path: 'D:/Self_Practicing/Computer Vision/research/Experiments/datasets/IDTrees_2020/IDTREES_competition_test_v2/neon_aop_bands.csv'                            # Path to the file containing information about the bands in the hyperspectral image

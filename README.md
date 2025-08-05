@@ -1,0 +1,288 @@
+# Multimodal Tree Crown Detection and Carbon Stock Estimation from Remote Sensing Imagery
+
+A framework for automated tree detection and carbon stock estimation from aerial imagery using multi-modal remote sensing data (RGB, Canopy Height Model, and Hyperspectral imagery).
+
+## Overview
+
+This codebase implements multiple state-of-the-art object detection models for tree crown delineation and combines them with machine learning approaches for carbon stock estimation. The framework supports various deep learning architectures including Faster R-CNN, DETR, YOLOv12, and the proposed Height-perceptual Attention Fusion R-CNN (HAF R-CNN) architecture.
+
+## Project Structure
+
+```
+├── config.yml                     # Main configuration file
+├── train.py                      # Training script for detection models
+├── test.py                       # Evaluation script for trained models
+├── main_estimate.py              # Carbon stock estimation pipeline
+├── carbon_stock_regression.py    # Carbon stock modeling experiments
+├── environment.yml               # Conda environment specification
+│
+├── datasets/                     # Dataset handling
+│   ├── __init__.py
+│   └── dataset.py               # TreeDataset class for NEON data
+│
+├── models/                       # Model architectures
+│   ├── __init__.py
+│   ├── engine.py                # Training and evaluation engines
+│   ├── utils.py                 # Model utilities
+│   ├── gpu.py                   # GPU management
+│   ├── rcnn/                    # Faster R-CNN implementations
+│   ├── detr/                    # DETR implementation
+│   ├── yolo/                    # YOLOv12 implementation
+│   ├── fused_rcnns/            # HCF R-CNN architecture
+│   ├── backbones/              # Various backbone networks
+│   ├── attention/              # Attention mechanisms
+│   └── DeepForest/             # DeepForest wrapper
+│
+├── utils/                        # Utility functions
+│   ├── __init__.py
+│   ├── data_utils.py
+│   ├── logger.py
+│   ├── metrics.py
+│   ├── visualize.py
+│   └── misc.py
+│
+├── carbon_stock_estimation/      # Carbon estimation utilities
+│   └── utils.py
+│
+├── data/                         # Data directory
+│   └── preprocessed/            # Preprocessed NEON dataset
+│       ├── train/
+│       └── test/
+│
+├── experiments/                  # Experiment outputs
+│   ├── checkpoints/             # Model checkpoints
+│   └── logs/                    # Training logs
+│
+├── inferences/                   # Inference outputs
+├── losses/                       # Custom loss functions
+└── scripts/                      # Utility scripts
+    ├── fetch_dataset.sh
+    └── update_annotation_path.py
+```
+
+## Installation
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/SebastianKyle/remote-sensing-carbon-stock-estimation.git
+   cd remote-sensing-carbon-stock-estimation
+   ```
+
+2. **Create conda environment:**
+   ```bash
+   conda env create -f environment.yml
+   conda activate tree_delineation
+   ```
+
+## Dataset Preparation
+
+This project uses the NEON Tree Dataset. Ensure your data follows this structure:
+
+```
+data/preprocessed/
+├── train/
+│   ├── RGB/          # RGB imagery (.tif)
+│   ├── CHM/          # Canopy Height Models (.tif)
+│   └── annotations/  # COCO format annotations (.json)
+└── test/
+    ├── RGB/
+    ├── CHM/
+    └── annotations/
+```
+
+Update the `data_dir` path in `config.yml` to point to your preprocessed data directory.
+
+One can download original NEON dataset [here](https://zenodo.org/records/5914554), the preprocessed NEON dataset [here](https://drive.google.com/file/d/1UUIcs9qQZUowSQZajSDYbyhHVrKxKgn_/view?usp=sharing).
+
+Original IDTReeS competition dataset can be downloaded [here](https://zenodo.org/records/3934932).
+
+Preprocessed field-based data from IDTReeS competition (.csv file) can be downloaded [here](https://drive.google.com/file/d/1qjN0mCmqcW4Ay76OFX2ci00BVyHG8tyd/view?usp=sharing).
+
+## Configuration
+
+The main configuration is managed through `config.yml`. Key sections include:
+
+### Training Configuration
+```yaml
+training:
+  model: 'hcf_rcnn'              # Model type: faster_rcnn, hcf_rcnn, detr, yolov12
+  data_dir: 'path/to/data/preprocessed/'
+  batch_size: 1
+  epochs: 100
+  lr: 0.0001
+  optimizer: 'sgd'               # sgd, adam, adamw
+  lr_scheduler: 'cosine'         # step, cosine, onecycle
+  frcnn_input: 'rgb'            # rgb, chm, both
+```
+
+### Test Configuration
+```yaml
+test:
+  model: 'hcf_rcnn'
+  ckpt_path: 'path/to/best/checkpoint.pth'
+  data_dir: 'path/to/data/preprocessed/'
+```
+
+### Inference Configuration
+```yaml
+inference:
+  site: 'DELA'                   # NEON site identifier
+  rgb_tile_path: 'path/to/large/rgb/tile.tif'
+  chm_tile_path: 'path/to/large/chm/tile.tif'
+  hsi_tile_path: 'path/to/large/hsi/tile.tif'
+  ckpt_path: 'path/to/trained/model.pth'
+  rf_model_path: 'path/to/carbon/model.pkl'
+```
+
+## Usage
+
+### 1. Training
+
+Train a tree detection model:
+
+```bash
+python train.py --config config.yml
+```
+
+**Optional command-line arguments:**
+```bash
+python train.py \
+    --config config.yml \
+    --model hcf_rcnn \
+    --epochs 50 \
+    --batch_size 2 \
+    --lr 0.001 \
+    --optimizer adam
+```
+
+**Available models:**
+- `faster_rcnn`: Standard Faster R-CNN with ResNet50 backbone
+- `hcf_rcnn`: Hierarchical Channel Fusion R-CNN (our proposed method)
+- `detr`: Detection Transformer
+- `yolov12`: YOLOv12 architecture
+
+### 2. Testing
+
+Evaluate a trained model:
+
+```bash
+python test.py --config config.yml
+```
+
+The script will load the best checkpoint and evaluate on the test set, reporting:
+- Precision, Recall, F1-score
+- Average Precision (AP)
+- Mean Intersection over Union (IoU)
+
+### 3. Carbon Stock Estimation
+
+#### Option A: End-to-end Pipeline
+```bash
+python main_estimate.py --config config.yml
+```
+
+This runs the complete pipeline:
+1. Tree detection on large aerial tiles
+2. Feature extraction from detected trees
+3. Carbon stock prediction using trained regression model
+4. Visualization of results
+
+#### Option B: Train Carbon Stock Models
+```bash
+python carbon_stock_regression.py
+```
+
+This script trains and evaluates three regression models:
+- Random Forest Regression
+- Deep Learning (Neural Network)
+- Linear Regression with stepwise selection
+
+### 4. Visualization
+
+The framework includes comprehensive visualization tools:
+
+```python
+from utils.visualize import visualize_image_with_annotation
+from datasets.dataset import TreeDataset
+
+# Visualize dataset samples
+dataset = TreeDataset(data_dir, train=False)
+visualize_image_with_annotation(dataset, 'sample_id', mode='rgb')
+```
+
+## Model Architectures
+
+### 1. HAF R-CNN (Height-perceptual Attention Fusion R-CNN)
+Our proposed architecture that fuses RGB and CHM features through cross-attention mechanisms.
+
+### 2. Faster R-CNN
+Standard two-stage object detection with feature pyramid networks.
+
+### 3. DETR (Detection Transformer)
+Transformer-based object detection with set prediction.
+
+### 4. YOLOv12
+Single-stage detection with improved architecture and loss functions.
+
+## Carbon Stock Estimation
+
+The carbon stock estimation pipeline includes:
+
+1. **Feature Extraction**: From RGB, CHM, and hyperspectral data
+2. **Regression Models**: 
+   - Random Forest (primary model)
+   - Deep Neural Network
+   - Linear Regression
+3. **Evaluation Metrics**: RMSE, MAE, R², and PMAE
+
+### Feature Categories:
+- **Structural**: Crown area, crown diameter, tree height
+- **Spectral**: Vegetation indices from hyperspectral bands
+- **Textural**: Derived from CHM and RGB imagery
+
+## Outputs
+
+### Training Outputs
+- Model checkpoints in `experiments/checkpoints/`
+- Training logs in `experiments/logs/`
+- Best model selections based on AP, Precision, and Recall
+
+### Inference Outputs
+- Detection visualizations
+- Carbon stock distribution plots
+- Site-level carbon estimates
+
+### Performance Metrics
+The framework tracks multiple evaluation metrics:
+- **Detection**: Precision, Recall, F1-score, AP, IoU
+- **Carbon Estimation**: RMSE, MAE, R², PMAE
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/new-feature`)
+3. Commit your changes (`git commit -am 'Add new feature'`)
+4. Push to the branch (`git push origin feature/new-feature`)
+5. Create a Pull Request
+
+<!-- ## Citation
+
+If you use this code in your research, please cite our paper:
+
+```bibtex
+@article{my_paper_2024,
+  title={My Paper Title},
+  author={My Name and Collaborators},
+  journal={Conference/Journal Name},
+  year={2025}
+}
+``` -->
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Acknowledgments
+- Falculty of Information Technology - VNUHCM University of Science for providing computing resources to conduct such experiments.
+- NEON (National Ecological Observatory Network) for making the remote-sensing dataset public.
+- DeepForest project for public model weight.

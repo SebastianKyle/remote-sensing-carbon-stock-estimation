@@ -1,0 +1,1 @@
+{"NVIDIA GeForce GTX 1650 Ti": {"performance": {"1": {"fasterrcnn": [[3.29, 0.68], [2.74, 0.61], [3.27, 0.63], [3.29, 0.64], [3.3, 0.63], [0.09, 5.16]]}}, "properties": {"capability": [7, 5], "name": "NVIDIA GeForce GTX 1650 Ti", "sm_count": 16, "total_momory": 4.0}}}
