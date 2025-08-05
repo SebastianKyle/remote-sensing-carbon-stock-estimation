@@ -174,6 +174,13 @@ The script will load the best checkpoint and evaluate on the test set, reporting
 - Average Precision (AP)
 - Mean Intersection over Union (IoU)
 
+Pretrained models can be downloaded from links:
+- HAF R-CNN: [drive](https://drive.google.com/file/d/1s95FEEChH0MMNF020bdabi7aCKscyf9v/view?usp=sharing)
+- HAF R-CNN (no CAWF): [drive](https://drive.google.com/file/d/1o8VL1ASgxaCALcMobo8gd41uVzcnwode/view?usp=sharing)
+- Faster R-CNN (RGB): [drive](https://drive.google.com/file/d/1wUgje9t7VtjMxYleo1WNPKsZAMV45pTs/view?usp=sharing)
+- Faster R-CNN (CHM): [drive](https://drive.google.com/file/d/1V6WPzI9dvWMoLmyVLnfXklbqcvmXlBmC/view?usp=sharing)
+- Yolov12 (RGB): [drive](https://drive.google.com/file/d/10eG8FaLU0e-J0ATV0susS96eLXvzNY_A/view?usp=sharing)
+
 ### 3. Carbon Stock Estimation
 
 #### Option A: End-to-end Pipeline
@@ -182,7 +189,7 @@ python main_estimate.py --config config.yml
 ```
 
 This runs the complete pipeline:
-1. Tree detection on large aerial tiles
+1. Tree detection on large aerial tiles (available in original NEON training dataset in this [link](https://zenodo.org/records/5914554))
 2. Feature extraction from detected trees
 3. Carbon stock prediction using trained regression model
 4. Visualization of results
@@ -196,6 +203,9 @@ This script trains and evaluates three regression models:
 - Random Forest Regression
 - Deep Learning (Neural Network)
 - Linear Regression with stepwise selection
+
+Pretrained random forest model can be downloaded from [drive](https://drive.google.com/file/d/1Y3aA_SU2SGPLahD4gJqH4IP8DrxsXjsW/view?usp=sharing).
+Neon aop bands file can be downloaded from [drive](https://drive.google.com/file/d/1wF-tB-m8oNYP1bPDlGEQavOzsAnSc60_/view?usp=sharing).
 
 ### 4. Visualization
 
@@ -283,6 +293,6 @@ If you use this code in your research, please cite our paper:
 This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## Acknowledgments
-- Falculty of Information Technology - VNUHCM University of Science for providing computing resources to conduct such experiments.
+- Faculty of Information Technology - VNUHCM University of Science for providing computing resources to conduct such experiments.
 - NEON (National Ecological Observatory Network) for making the remote-sensing dataset public.
 - DeepForest project for public model weight.
