@@ -2,6 +2,8 @@
 
 A framework for automated tree detection and carbon stock estimation from aerial imagery using multi-modal remote sensing data (RGB, Canopy Height Model, and Hyperspectral imagery).
 
+![HAF R-CNN](./docs/assets/haf_rcnn.png)
+
 ## Overview
 
 This codebase implements multiple state-of-the-art object detection models for tree crown delineation and combines them with machine learning approaches for carbon stock estimation. The framework supports various deep learning architectures including Faster R-CNN, DETR, YOLOv12, and the proposed Height-perceptual Attention Fusion R-CNN (HAF R-CNN) architecture.
