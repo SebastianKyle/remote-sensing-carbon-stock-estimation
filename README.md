@@ -2,6 +2,7 @@
 
 A framework for automated tree detection and carbon stock estimation from aerial imagery using multi-modal remote sensing data (RGB, Canopy Height Model, and Hyperspectral imagery).
 
+![Pipeline](./docs/assets/pipeline.png)
 ![HAF R-CNN](./docs/assets/haf_rcnn.png)
 
 ## Overview
@@ -176,12 +177,12 @@ The script will load the best checkpoint and evaluate on the test set, reporting
 - Average Precision (AP)
 - Mean Intersection over Union (IoU)
 
-Pretrained models can be downloaded from links:
-- HAF R-CNN: [drive](https://drive.google.com/file/d/1s95FEEChH0MMNF020bdabi7aCKscyf9v/view?usp=sharing)
+Trained model weights can be downloaded in [Experimental Results](#experimental-results).
+<!-- - HAF R-CNN: [drive](https://drive.google.com/file/d/1s95FEEChH0MMNF020bdabi7aCKscyf9v/view?usp=sharing)
 - HAF R-CNN (no CAWF): [drive](https://drive.google.com/file/d/1o8VL1ASgxaCALcMobo8gd41uVzcnwode/view?usp=sharing)
 - Faster R-CNN (RGB): [drive](https://drive.google.com/file/d/1wUgje9t7VtjMxYleo1WNPKsZAMV45pTs/view?usp=sharing)
 - Faster R-CNN (CHM): [drive](https://drive.google.com/file/d/1V6WPzI9dvWMoLmyVLnfXklbqcvmXlBmC/view?usp=sharing)
-- Yolov12 (RGB): [drive](https://drive.google.com/file/d/10eG8FaLU0e-J0ATV0susS96eLXvzNY_A/view?usp=sharing)
+- Yolov12 (RGB): [drive](https://drive.google.com/file/d/10eG8FaLU0e-J0ATV0susS96eLXvzNY_A/view?usp=sharing) -->
 
 ### 3. Carbon Stock Estimation
 
@@ -248,26 +249,29 @@ The carbon stock estimation pipeline includes:
 3. **Evaluation Metrics**: RMSE, MAE, R², and PMAE
 
 ### Feature Categories:
-- **Structural**: Crown area, crown diameter, tree height
+- **Structural**: Crown area, crown diameter, tree height, ...
 - **Spectral**: Vegetation indices from hyperspectral bands
-- **Textural**: Derived from CHM and RGB imagery
 
-## Outputs
+## Experimental Results
 
-### Training Outputs
-- Model checkpoints in `experiments/checkpoints/`
-- Training logs in `experiments/logs/`
-- Best model selections based on AP, Precision, and Recall
+### Tree Crown Detection (NEON Test Set)
 
-### Inference Outputs
-- Detection visualizations
-- Carbon stock distribution plots
-- Site-level carbon estimates
+| Model                  | Input    | Recall | Precision | AP     | F1     | Checkpoint |
+|-------------------------|----------|--------|-----------|--------|--------|------------|
+| Faster R-CNN      | RGB      | 0.5848 | 0.5961    | 0.6158 | 0.5904 | [download](https://drive.google.com/file/d/1wUgje9t7VtjMxYleo1WNPKsZAMV45pTs/view?usp=sharing) |
+| Faster R-CNN      | CHM      | 0.2794 | 0.3217    | 0.2927 | 0.2990 | [download](https://drive.google.com/file/d/1V6WPzI9dvWMoLmyVLnfXklbqcvmXlBmC/view?usp=sharing) |
+| YOLOv12           | RGB      | 0.5474 | 0.5601    | 0.5557 | 0.5537 | [download](https://drive.google.com/file/d/10eG8FaLU0e-J0ATV0susS96eLXvzNY_A/view?usp=sharing) |
+| DeepForest        | RGB      | 0.6233 | 0.5214    | 0.6235 | 0.5658 | [official weights](https://huggingface.co/weecology/deepforest-tree) |
+| **HAF R-CNN (ours)**       | RGB+CHM  | 0.6157 | 0.6230    | 0.6444 | 0.6193 | [download](https://drive.google.com/file/d/1s95FEEChH0MMNF020bdabi7aCKscyf9v/view?usp=sharing) |
+| **HAF R-CNN (no CAWF)**    | RGB+CHM  | 0.6079 | 0.6026    | 0.6361 | 0.6052 | [download](https://drive.google.com/file/d/1o8VL1ASgxaCALcMobo8gd41uVzcnwode/view?usp=sharing) |
 
-### Performance Metrics
-The framework tracks multiple evaluation metrics:
-- **Detection**: Precision, Recall, F1-score, AP, IoU
-- **Carbon Estimation**: RMSE, MAE, R², PMAE
+### Carbon Stock Estimation - Random Forest (IDTReeS Dataset)
+
+| Site   | RMSE (kg) | MAE (kg) | PMAE (%) | R²     | Checkpoint |
+|--------|-----------|----------|-----------|--------|-------------|
+| Overall (204 trees) | 184.52    | 118.94   | 58.51     | 0.4340 | [RF Model](https://drive.google.com/file/d/1Y3aA_SU2SGPLahD4gJqH4IP8DrxsXjsW/view?usp=sharing) |
+| MLBS   | 206.64    | 144.93   | 47.56     | 0.3420 | same as above |
+| OSBS   | 122.99    | 62.09    | 61.27     | 0.6406 | same as above |
 
 ## Contributing
 
@@ -296,5 +300,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Acknowledgments
 - Faculty of Information Technology - VNUHCM University of Science for providing computing resources to conduct such experiments.
-- NEON (National Ecological Observatory Network) for making the remote-sensing dataset public.
-- DeepForest project for public model weight.
+- NEON (National Ecological Observatory Network) for making the remote-sensing dataset and DeepForest model checkpoint public.
