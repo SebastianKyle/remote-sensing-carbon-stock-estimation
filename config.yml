@@ -59,6 +59,7 @@ test:
 
 # Customize configuration for model evaluation on large images
 inference:
+  conf_thresh: 0.15
   site: DELA                                                                                                                                                                # Site name in the NEON dataset, e.g., DELA, HARV, MLBS, ...
   rgb_tile_path: 'D:/Self_Practicing/Computer Vision/research/Experiments/datasets/NeonTree/training/RGB/2019_DELA_5_423000_3601000_image_crop.tif'                         # Path to the large RGB image
   chm_tile_path: 'D:/Self_Practicing/Computer Vision/research/Experiments/datasets/NeonTree/training/CHM/2019_DELA_5_423000_3601000_image_crop_CHM.tif'                     # Path to the large CHM image

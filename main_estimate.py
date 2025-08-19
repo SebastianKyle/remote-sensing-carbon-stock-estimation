@@ -126,7 +126,9 @@ def estimate_carbon_from_large_tile(rgb_path, chm_path, hsi_path, model, rf_mode
 def main(config):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    model = models.fused_rcnn_resnet50(pretrained=True, num_classes=2, box_score_thresh=0.15, backbone_name='hcf_resnet50').to(device)
+    conf_thresh = config['inference']['conf_thresh']
+
+    model = models.fused_rcnn_resnet50(pretrained=True, num_classes=2, box_score_thresh=conf_thresh, backbone_name='hcf_resnet50').to(device)
     checkpoint = torch.load(config['inference']['ckpt_path'], map_location=device, weights_only=True)
     model.load_state_dict(checkpoint["model"])
     model.eval()

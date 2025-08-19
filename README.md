@@ -129,6 +129,7 @@ test:
 ### Inference Configuration
 ```yaml
 inference:
+  conf_thresh: 0.15              # Confidence score for tree crown detection
   site: 'DELA'                   # NEON site identifier
   rgb_tile_path: 'path/to/large/rgb/tile.tif'
   chm_tile_path: 'path/to/large/chm/tile.tif'
@@ -274,6 +275,7 @@ The carbon stock estimation pipeline includes:
 <!-- | Overall (204 trees) | 184.52    | 118.94   | 58.51     | 0.4340 | [RF Model](https://drive.google.com/file/d/1Y3aA_SU2SGPLahD4gJqH4IP8DrxsXjsW/view?usp=sharing) | -->
 
 ### Large-scale Carbon Stock Estimation
+Confidence threshold: 0.15
 <p align="center">
   <img src="docs/assets/carbon_stock_detection_OSBS.png" width="45%" />
   <img src="docs/assets/carbon_stock_detection_MLBS.png" width="45%" />
