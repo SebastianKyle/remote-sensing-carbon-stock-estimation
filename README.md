@@ -269,17 +269,15 @@ The carbon stock estimation pipeline includes:
 
 | Site   | RMSE (kg) | MAE (kg) | PMAE (%) | R²     | Checkpoint |
 |--------|-----------|----------|-----------|--------|-------------|
-| Overall (204 trees) | 184.52    | 118.94   | 58.51     | 0.4340 | [RF Model](https://drive.google.com/file/d/1Y3aA_SU2SGPLahD4gJqH4IP8DrxsXjsW/view?usp=sharing) |
-| MLBS   | 206.64    | 144.93   | 47.56     | 0.3420 | same as above |
-| OSBS   | 122.99    | 62.09    | 61.27     | 0.6406 | same as above |
+| OSBS   | 117.83    | 59.58    | 45.63     | 0.6702 | [RF Model](https://drive.google.com/file/d/1Y3aA_SU2SGPLahD4gJqH4IP8DrxsXjsW/view?usp=sharing) |
+| MLBS   | 204.98    | 144.45   | 61.06     | 0.3524 | Same as above |
+<!-- | Overall (204 trees) | 184.52    | 118.94   | 58.51     | 0.4340 | [RF Model](https://drive.google.com/file/d/1Y3aA_SU2SGPLahD4gJqH4IP8DrxsXjsW/view?usp=sharing) | -->
 
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/new-feature`)
-3. Commit your changes (`git commit -am 'Add new feature'`)
-4. Push to the branch (`git push origin feature/new-feature`)
-5. Create a Pull Request
+### Large-scale Carbon Stock Estimation
+<p align="center">
+  <img src="docs/assets/carbon_stock_detection_OSBS.png" width="45%" />
+  <img src="docs/assets/carbon_stock_detection_MLBS.png" width="45%" />
+</p>
 
 <!-- ## Citation
 

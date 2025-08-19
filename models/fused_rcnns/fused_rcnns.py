@@ -243,10 +243,10 @@ class FusedRCNNNoFPN(nn.Module):
             
         return detections
 
-def fused_rcnn_resnet50(pretrained, num_classes, backbone_name='cbam_resnet50', pretrained_chm_backbone=True, anchor_sizes=((32,), (64,), (128,), (256,), (512,)), loss_cfg=None):
+def fused_rcnn_resnet50(pretrained, num_classes, backbone_name='cbam_resnet50', pretrained_chm_backbone=True, box_score_thresh=0.1, anchor_sizes=((32,), (64,), (128,), (256,), (512,)), loss_cfg=None):
     # Get the backbone class from the backbones dictionary
     backbone = models.backbones.backbones[backbone_name](pretrained=pretrained)
-    model = FusedRCNN(backbone, num_classes=num_classes, anchor_sizes=anchor_sizes, loss_cfg=loss_cfg)
+    model = FusedRCNN(backbone, num_classes=num_classes, box_score_thresh=box_score_thresh, anchor_sizes=anchor_sizes, loss_cfg=loss_cfg)
 
     if pretrained:
         model_urls = {

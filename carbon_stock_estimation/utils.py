@@ -12,6 +12,9 @@ from rasterio.plot import show
 from rasterio.warp import transform_bounds
 from pyproj import Transformer
 
+import warnings
+warnings.filterwarnings("ignore", category=RuntimeWarning)
+
 def compute_optimal_overlap(image_size, crop_size):
     """
     Compute the minimal overlap so that the last crop aligns with the image edge.
@@ -31,7 +34,6 @@ def split_image_with_offsets(image, size=(400, 400), overlap=None, scale_factor=
     If scale_factor < 1, tile size and overlap are scaled down (for CHM/HSI).
     """
     h, w = image.shape[-2], image.shape[-1]
-    print(f"Height, width: {h, w}")
     crop_h, crop_w = size
     if scale_factor != 1:
         crop_h = int(crop_h * scale_factor)
@@ -105,6 +107,24 @@ def merge_overlapping_boxes(boxes, scores, iou_thresh=0.5):
                 curr_score = max(curr_score, scores[j])  # or sum, or average
                 used.add(j)
                 overlaps.append(j)
+
+        # Remove degenerate boxes: abnormal aspect ratio or zero/negative area
+        x1, y1, x2, y2 = curr_box.tolist()
+        width = x2 - x1
+        height = y2 - y1
+        # Define aspect ratio and area thresholds
+        min_area = 10.0  # pixels
+        min_aspect = 0.3
+        max_aspect = 3.3
+        if width <= 0 or height <= 0:
+            continue
+        area = width * height
+        aspect_ratio = width / height if height > 0 else 0
+        if area < min_area:
+            continue
+        if aspect_ratio < min_aspect or aspect_ratio > max_aspect:
+            continue
+
         merged_boxes.append(curr_box.numpy())
         merged_scores.append(curr_score.item())
         used.update(overlaps)
@@ -147,6 +167,10 @@ def extract_features_for_box(rgb_crop, chm_crop, hsi_crop, aop_bands_path='./neo
     evi_list, savi_list, mndvi_list, gi_list, vog_list = [], [], [], [], []
     mresri_list, datt_list, ppr_list, psri_list, sipi_list, pri_list, aci_list, sl_list = [], [], [], [], [], [], [], []
     mean_red_edge_list = []  # For Mean Red-edge Reflectance (690–740 nm)
+
+    ciredge_list, mtci_list = [], []
+    ndwi_list, ndii_list = [], []
+    ndli_list, cai_list = [], []
 
     # Find indices for 690–740 nm
     red_edge_start = np.searchsorted(wavelengths, 0.690)
@@ -194,6 +218,16 @@ def extract_features_for_box(rgb_crop, chm_crop, hsi_crop, aop_bands_path='./neo
             p_530 = get_refl(0.530)
             p_650 = get_refl(0.650)
             p_690 = get_refl(0.690)
+            p_783 = get_refl(0.783)
+            p_665 = get_refl(0.665)
+            p_860 = get_refl(0.860)
+            p_1240 = get_refl(1.240)
+            p_1650 = get_refl(1.650)
+            p_1754 = get_refl(1.754)
+            p_1680 = get_refl(1.680)
+            p_2030 = get_refl(2.030)
+            p_2200 = get_refl(2.200)
+            p_2100 = get_refl(2.100)
 
             # Compute vegetation indices safely
             EVI = safe_div(2.5 * (p_798 - p_679), 1 + p_798 + 6 * p_679 - 7.5 * p_482)
@@ -209,6 +243,20 @@ def extract_features_for_box(rgb_crop, chm_crop, hsi_crop, aop_bands_path='./neo
             PRI = safe_div(p_570 - p_530, p_570 + p_530)
             ACI = safe_div(p_650, p_550)
             SL = safe_div(p_740 - p_690, 50.0)
+
+            # --- Red-edge chlorophyll ---
+            # CIrededge = safe_div(p_750, p_705) - 1
+            CIrededge = safe_div(p_783, p_705) - 1
+            # MTCI = safe_div(p_754 - p_709, p_709 - p_681)
+            MTCI = safe_div(p_740 - p_705, p_705 - p_665)
+
+            # --- Water content ---
+            NDWI = safe_div(p_860 - p_1240, p_860 + p_1240)
+            NDII = safe_div(p_850 - p_1650, p_850 + p_1650)
+
+            # --- Ligno-cellulose (SWIR) ---
+            NDLI = safe_div(np.log(safe_div(1,p_1754)) - np.log(safe_div(1,p_1680)), np.log(safe_div(1,p_1754)) + np.log(safe_div(1,p_1680)))
+            CAI = 0.5 * (p_2030 + p_2200) - p_2100
 
             # Mean Red-edge Reflectance for this pixel
             mean_red_edge = np.mean(spectrum[red_edge_start:red_edge_end])
@@ -230,6 +278,13 @@ def extract_features_for_box(rgb_crop, chm_crop, hsi_crop, aop_bands_path='./neo
             if not np.isnan(ACI): aci_list.append(ACI)
             if not np.isnan(SL): sl_list.append(SL)
 
+            if not np.isnan(CIrededge): ciredge_list.append(CIrededge)
+            if not np.isnan(MTCI): mtci_list.append(MTCI)
+            if not np.isnan(NDWI): ndwi_list.append(NDWI)
+            if not np.isnan(NDII): ndii_list.append(NDII)
+            if not np.isnan(NDLI): ndli_list.append(NDLI)
+            if not np.isnan(CAI): cai_list.append(CAI)
+
     # --- Final mean of vegetation indices ---
     EVI = safe_mean(evi_list)
     SAVI = safe_mean(savi_list)
@@ -246,6 +301,13 @@ def extract_features_for_box(rgb_crop, chm_crop, hsi_crop, aop_bands_path='./neo
     SL = safe_mean(sl_list)
     Mean690_740 = safe_mean(mean_red_edge_list)
 
+    CIrededge = safe_mean(ciredge_list)
+    MTCI = safe_mean(mtci_list)
+    NDWI = safe_mean(ndwi_list)
+    NDII = safe_mean(ndii_list)
+    NDLI = safe_mean(ndli_list)
+    CAI = safe_mean(cai_list)
+
     # PCA on hyperspectral region
     # hsi_flat = hsi_crop.reshape(-1, hsi_crop.shape[2])
     # pca = PCA(n_components=3)
@@ -254,19 +316,15 @@ def extract_features_for_box(rgb_crop, chm_crop, hsi_crop, aop_bands_path='./neo
     
     # Append features for this tree
     features = {
-        'H': H, 'Hmean': Hmean, 
+        'H': H, 
         'Hstd': Hstd,
-        'PH10': PH10, 'PH25': PH25, 'PH50': PH50, 
+        'PH50': PH50, 
         'PH75': PH75, 'PH90': PH90, 'PH95': PH95,
         'CD': CD, 
         'CA': CA,
-        'EVI': EVI, 'SAVI': SAVI, 'GI': GI,
-        'MNDVI': MNDVI, 'VOG': VOG,
-        'MRESRI': MRESRI, 'Datt': Datt, 'PPR': PPR,
-        'PSRI': PSRI, 'SIPI': SIPI, 'PRI': PRI,
-        'ACI': ACI, 'SL': SL, 'p_550': p_550, 'p_750': p_750,
-        'Mean690-740': Mean690_740,
-        # 'PCA1': pca_features[0], 'PCA2': pca_features[1], 'PCA3': pca_features[2]
+        'CIrededge': CIrededge, 'MTCI': MTCI, 'NDWI': NDWI, 'NDII': NDII, 
+        'NDLI': NDLI, 
+        'CAI': CAI
     } 
 
     return features
@@ -316,7 +374,7 @@ def visualize_detections(rgb_path, merged_boxes, carbon_stocks, total_carbon, si
         # ax.text(geo_x1, geo_y1, f"{carbon:.1f}", color='blue', fontsize=6)
 
     # ax.set_title(f"Khu vực rừng {site} (Chỉ số hấp thụ carbon: {total_carbon:.2f} kg)")
-    ax.set_title(f"{site} (Carbon Stock: {total_carbon:.2f} kg)")
+    ax.set_title(f"{site} (Carbon Stock: {total_carbon:.2f} kg)", fontsize=25)
     # ax.set_xlabel("Longitude or Easting")
     # ax.set_ylabel("Latitude or Northing")
     

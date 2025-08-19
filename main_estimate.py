@@ -12,6 +12,9 @@ import models
 import cv2
 import pandas as pd
 
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning, module="torchvision")
+
 # --- Main pipeline ---
 def estimate_carbon_from_large_tile(rgb_path, chm_path, hsi_path, model, rf_model_path, tile_size=400, device='cuda', aop_bands_path='./neon_aop_bands.csv'):
     # 1. Read large images
@@ -28,6 +31,7 @@ def estimate_carbon_from_large_tile(rgb_path, chm_path, hsi_path, model, rf_mode
     with rasterio.open(hsi_path) as src:
         hsi_large = src.read()
         hsi_large = np.transpose(hsi_large, (1, 2, 0))  # (H, W, bands)
+    hsi_large = np.where(hsi_large == -9999, 2, hsi_large)
 
     area_ha = (width * resolution[0]) * (height * resolution[1]) / 10_000
 
@@ -65,7 +69,7 @@ def estimate_carbon_from_large_tile(rgb_path, chm_path, hsi_path, model, rf_mode
 
     # 4. Merge detections
     # merged_boxes, merged_scores = merge_detections(all_boxes, all_scores, iou_thresh=0.5)
-    merged_boxes, merged_scores = merge_overlapping_boxes(all_boxes, all_scores, iou_thresh=0.5)
+    merged_boxes, merged_scores = merge_overlapping_boxes(all_boxes, all_scores, iou_thresh=0.4)
 
     # 5. Extract features for each detected crown
     features = []
@@ -114,7 +118,7 @@ def estimate_carbon_from_large_tile(rgb_path, chm_path, hsi_path, model, rf_mode
     features_df = pd.DataFrame(features)
     carbon_stocks = rf_model.predict(features_df)
 
-    # 7. Sum for total carbon index
+    # 7. Sum for total carbon stock
     total_carbon = np.sum(carbon_stocks)
     return total_carbon, merged_boxes, carbon_stocks, area_ha
 
@@ -122,7 +126,7 @@ def estimate_carbon_from_large_tile(rgb_path, chm_path, hsi_path, model, rf_mode
 def main(config):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    model = models.fused_rcnn_resnet50(pretrained=True, num_classes=2, backbone_name='hcf_resnet50').to(device)
+    model = models.fused_rcnn_resnet50(pretrained=True, num_classes=2, box_score_thresh=0.15, backbone_name='hcf_resnet50').to(device)
     checkpoint = torch.load(config['inference']['ckpt_path'], map_location=device, weights_only=True)
     model.load_state_dict(checkpoint["model"])
     model.eval()
