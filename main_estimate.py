@@ -38,6 +38,11 @@ def estimate_carbon_from_large_tile(rgb_path, chm_path, hsi_path, model, rf_mode
     scale_rgb_to_chm = rgb_large.shape[1] / chm_large.shape[0]
     scale_rgb_to_hsi = rgb_large.shape[1] / hsi_large.shape[0]
 
+    chm_large = np.clip(chm_large, np.percentile(chm_large, 3), np.percentile(chm_large, 99))
+    chm_large_scaled = (chm_large - np.min(chm_large)) / (np.max(chm_large) - np.min(chm_large))
+    chm_large_scaled = (chm_large_scaled * 255).astype(np.uint8)
+    chm_large_resized = cv2.resize(chm_large_scaled, (rgb_large.shape[2], rgb_large.shape[1]), interpolation=cv2.INTER_CUBIC)
+
     # 2. Split into crops
     rgb_tiles, offsets = split_image_with_offsets(rgb_large, (tile_size, tile_size))
     chm_tiles, _ = split_image_with_offsets(chm_large, (tile_size, tile_size), scale_factor=0.1)
@@ -47,12 +52,9 @@ def estimate_carbon_from_large_tile(rgb_path, chm_path, hsi_path, model, rf_mode
     all_boxes = []
     all_scores = []
     for rgb_tile, chm_tile, offset in zip(rgb_tiles, chm_tiles, offsets):
-        chm_tile = cv2.resize(chm_tile, (rgb_tile.shape[2], rgb_tile.shape[1]), interpolation=cv2.INTER_CUBIC)
-        chm_tile_scaled = (chm_tile - np.min(chm_tile)) / (np.max(chm_tile) - np.min(chm_tile) + 1e-6)
-
         # Prepare input for model (adjust as needed for your model)
         rgb_tensor = transforms.ToTensor()(rgb_tile.transpose(1, 2, 0)).to(device)  # (3, 400, 400)
-        chm_tensor = transforms.ToTensor()(chm_tile_scaled).to(device) # (400, 400)
+        chm_tensor = transforms.ToTensor()(chm_tile).to(device) # (400, 400)
 
         # Run detection (replace with your model's API)
         with torch.no_grad():
@@ -68,8 +70,7 @@ def estimate_carbon_from_large_tile(rgb_path, chm_path, hsi_path, model, rf_mode
         all_scores.append(scores)
 
     # 4. Merge detections
-    # merged_boxes, merged_scores = merge_detections(all_boxes, all_scores, iou_thresh=0.5)
-    merged_boxes, merged_scores = merge_overlapping_boxes(all_boxes, all_scores, iou_thresh=0.4)
+    merged_boxes, merged_scores = merge_overlapping_boxes(all_boxes, all_scores, iou_thresh=0.2)
 
     # 5. Extract features for each detected crown
     features = []
