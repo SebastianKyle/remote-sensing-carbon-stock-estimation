@@ -97,6 +97,16 @@ Update the `data_dir` path in `config.yml` to point to your preprocessed data di
 
 One can download original NEON dataset [here](https://zenodo.org/records/5914554), the preprocessed NEON dataset [here](https://drive.google.com/file/d/1UUIcs9qQZUowSQZajSDYbyhHVrKxKgn_/view?usp=sharing).
 
+After downloading the preprocessed NEON dataset, extract the tree_dataset.zip file and move the test/ and train/ directory inside the dataset to data/preprocessed/ directory.
+Then, run the script in scripts/update_annotation_path.py file to modify the image and annotation paths inside the annotation file by modifying the variables inside the script:
+* new_base_path - path to the project directory (.../remote-sensing-carbon-stock-estimation/)
+* annotations_directory - path to .json annotation files (for train set: .../remote-sensing-carbon-stock-estimation/data/preprocessed/train/annotations, for test set: .../remote-sensing-carbon-stock-estimation/data/preprocessed/test/annotations)
+
+Run with the modified path for train and test set separately:
+  ```bash
+  python scripts/update_annotation_path.py
+  ```
+
 Original IDTReeS competition dataset can be downloaded [here](https://zenodo.org/records/3934932).
 
 Preprocessed field-based data from IDTReeS competition (.csv file) can be downloaded [here](https://drive.google.com/file/d/1qjN0mCmqcW4Ay76OFX2ci00BVyHG8tyd/view?usp=sharing).
