@@ -273,7 +273,7 @@ The carbon stock estimation pipeline includes:
 | Faster R-CNN      | CHM      | 0.2794 | 0.3217    | 0.2927 | 0.2990 | [download](https://drive.google.com/file/d/1V6WPzI9dvWMoLmyVLnfXklbqcvmXlBmC/view?usp=sharing) |
 | YOLOv12           | RGB      | 0.5474 | 0.5601    | 0.5557 | 0.5537 | [download](https://drive.google.com/file/d/10eG8FaLU0e-J0ATV0susS96eLXvzNY_A/view?usp=sharing) |
 | DeepForest        | RGB      | 0.6233 | 0.5214    | 0.6235 | 0.5658 | [official weights](https://huggingface.co/weecology/deepforest-tree) |
-| **HAF R-CNN (ours)**       | RGB+CHM  | 0.6157 | 0.6230    | 0.6444 | 0.6193 | [download](https://drive.google.com/file/d/1s95FEEChH0MMNF020bdabi7aCKscyf9v/view?usp=sharing) |
+| **HAF R-CNN (ours)**       | RGB+CHM  | 0.6158 | 0.6219    | 0.6443 | 0.6189 | [download](https://drive.google.com/file/d/1s95FEEChH0MMNF020bdabi7aCKscyf9v/view?usp=sharing) |
 | **HAF R-CNN (no CAWF)**    | RGB+CHM  | 0.6079 | 0.6026    | 0.6361 | 0.6052 | [download](https://drive.google.com/file/d/1o8VL1ASgxaCALcMobo8gd41uVzcnwode/view?usp=sharing) |
 
 ### Carbon Stock Estimation - Random Forest (IDTReeS Dataset)

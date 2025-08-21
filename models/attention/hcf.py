@@ -525,10 +525,10 @@ class CAWF(nn.Module):
         chm_k = self.depth_k(chm).flatten(2)  # [N, C/8, H*W]
         chm_v = self.depth_v(chm).flatten(2)  # [N, C, H*W]
 
-        # rgb_attn = torch.softmax((rgb_q.transpose(-2, -1) @ chm_k) * self.scale, dim=-1) # [N, H*W, H*W]
-        # chm_attn = torch.softmax((chm_q.transpose(-2, -1) @ rgb_k) * self.scale, dim=-1) # [N, H*W, H*W]
-        rgb_attn = torch.softmax((rgb_q.transpose(-2, -1) @ chm_k), dim=-1) # [N, H*W, H*W]
-        chm_attn = torch.softmax((chm_q.transpose(-2, -1) @ rgb_k), dim=-1) # [N, H*W, H*W]
+        rgb_attn = torch.softmax((rgb_q.transpose(-2, -1) @ chm_k) * self.scale, dim=-1) # [N, H*W, H*W]
+        chm_attn = torch.softmax((chm_q.transpose(-2, -1) @ rgb_k) * self.scale, dim=-1) # [N, H*W, H*W]
+        # rgb_attn = torch.softmax((rgb_q.transpose(-2, -1) @ chm_k), dim=-1) # [N, H*W, H*W]
+        # chm_attn = torch.softmax((chm_q.transpose(-2, -1) @ rgb_k), dim=-1) # [N, H*W, H*W]
         
         rgb_attended = (rgb_v @ rgb_attn).view_as(rgb) # [N, C, H, W]
         chm_attended = (chm_v @ chm_attn).view_as(chm) # [N, C, H, W] 
