@@ -253,8 +253,7 @@ Single-stage detection with improved architecture and loss functions.
 The carbon stock estimation pipeline includes:
 
 1. **Feature Extraction**: From RGB, CHM, and hyperspectral data
-2. **Regression Models**: 
-   - Random Forest
+2. **Regression Models**: Random Forest
 3. **Evaluation Metrics**: RMSE, MAE, R², and PMAE
 
 ### Feature Categories:
