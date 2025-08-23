@@ -213,10 +213,7 @@ This runs the complete pipeline:
 python carbon_stock_regression.py
 ```
 
-This script trains and evaluates three regression models:
-- Random Forest Regression
-- Deep Learning (Neural Network)
-- Linear Regression with stepwise selection
+This script trains and evaluates Random Forest Regression model on per-tree carbon stock estimation.
 
 Pretrained random forest model can be downloaded from [drive](https://drive.google.com/file/d/1Y3aA_SU2SGPLahD4gJqH4IP8DrxsXjsW/view?usp=sharing).
 Neon aop bands file can be downloaded from [drive](https://drive.google.com/file/d/1wF-tB-m8oNYP1bPDlGEQavOzsAnSc60_/view?usp=sharing).
