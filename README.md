@@ -109,7 +109,7 @@ Run with the modified path for train and test set separately:
 
 Original IDTReeS competition dataset can be downloaded [here](https://zenodo.org/records/3934932).
 
-Preprocessed field-based data from IDTReeS competition (.csv file) can be downloaded [here](https://drive.google.com/file/d/1qjN0mCmqcW4Ay76OFX2ci00BVyHG8tyd/view?usp=sharing).
+Preprocessed field-based data from IDTReeS competition (.csv file) can be downloaded [here](https://drive.google.com/file/d/1sYnxB8XBNsG5Mpa4QjzQ7LrkIAjKgh7X/view?usp=sharing).
 
 ## Configuration
 
@@ -280,7 +280,7 @@ The carbon stock estimation pipeline includes:
 
 | Site   | RMSE (kg) | MAE (kg) | PMAE (%) | R²     | Checkpoint |
 |--------|-----------|----------|-----------|--------|-------------|
-| OSBS   | 117.83    | 59.58    | 45.63     | 0.6702 | [RF Model](https://drive.google.com/file/d/1Y3aA_SU2SGPLahD4gJqH4IP8DrxsXjsW/view?usp=sharing) |
+| OSBS   | 117.83    | 59.58    | 45.63     | 0.6702 | [RF Model](https://drive.google.com/file/d/1tHXEtq-RA_jiFCqg0kVFrY2Bs4YKT6QQ/view?usp=sharing) |
 | MLBS   | 204.98    | 144.45   | 61.06     | 0.3524 | Same as above |
 <!-- | Overall (204 trees) | 184.52    | 118.94   | 58.51     | 0.4340 | [RF Model](https://drive.google.com/file/d/1Y3aA_SU2SGPLahD4gJqH4IP8DrxsXjsW/view?usp=sharing) | -->
 
